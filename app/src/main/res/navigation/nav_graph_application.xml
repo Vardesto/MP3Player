@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph_application"
+    app:startDestination="@id/musicListFragment">
+
+    <fragment
+        android:id="@+id/musicListFragment"
+        android:name="com.example.mp3player.app.fragments.MusicListFragment"
+        android:label="Music" >
+        <action
+            android:id="@+id/action_musicListFragment_to_musicDetailFragment"
+            app:destination="@id/musicDetailFragment"
+            app:popUpTo="@id/musicListFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/musicDetailFragment"
+        android:name="com.example.mp3player.app.fragments.MusicDetailFragment"
+        android:label="MusicDetailFragment" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.mp3player.app.fragments.SettingsFragment"
+        android:label="Settings" />
+</navigation>
