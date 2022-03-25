@@ -3,18 +3,23 @@ package com.example.mp3player.app
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.mp3player.R
-import com.example.mp3player.interfaces.MusicPlayer
+import com.example.mp3player.data.permissions.PermissionsManager
+import com.example.mp3player.viewmodels.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(),  MusicPlayer{
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity(){
 
     @Inject lateinit var mediaPlayer: MediaPlayer
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,17 +30,7 @@ class MainActivity : AppCompatActivity(),  MusicPlayer{
         val appBarConfiguration = AppBarConfiguration(setOf(R.id.musicListFragment, R.id.settingsFragment))
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView.setupWithNavController(navController)
+        PermissionsManager.requestPermissions(this)
     }
 
-    override fun startPlaying(mediaPlayer: MediaPlayer, path: String) {
-
-    }
-
-    override fun resumePausePlaying(mediaPlayer: MediaPlayer) {
-
-    }
-
-    override fun stopPlaying(mediaPlayer: MediaPlayer) {
-
-    }
 }

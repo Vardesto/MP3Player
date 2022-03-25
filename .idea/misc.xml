@@ -4,7 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/layout/activity_main.xml" value="0.35260416666666666" />
+        <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/layout/bottom_player.xml" value="0.36666666666666664" />
+        <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/layout/fragment_music_detail.xml" value="0.18802083333333333" />
         <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/layout/fragment_music_list.xml" value="0.36666666666666664" />
+        <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/layout/item_music_list.xml" value="0.4523809523809524" />
         <entry key="..\:/Projects/Android/MP3Player/app/src/main/res/menu/main_bottom_menu.xml" value="0.36666666666666664" />
       </map>
     </option>
