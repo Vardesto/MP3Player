@@ -88,7 +88,4 @@ object AppModule {
         abstract fun bindMusicPlayer(musicPlayerImpl: MusicPlayerImpl): MusicPlayer
     }
 
-
-
-
 }

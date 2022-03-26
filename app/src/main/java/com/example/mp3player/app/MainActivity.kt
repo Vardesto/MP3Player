@@ -24,12 +24,14 @@ class MainActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //INIT AND SET NAVIGATION, BOTTOM MENU AND ACTION BAR
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomMenu)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
         val navController = navHostFragment.navController
         val appBarConfiguration = AppBarConfiguration(setOf(R.id.musicListFragment, R.id.settingsFragment))
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView.setupWithNavController(navController)
+        //REQUEST PERMISSIONS
         PermissionsManager.requestPermissions(this)
     }
 

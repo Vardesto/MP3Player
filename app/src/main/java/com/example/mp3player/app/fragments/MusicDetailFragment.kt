@@ -1,6 +1,5 @@
 package com.example.mp3player.app.fragments
 
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -9,6 +8,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -16,74 +16,107 @@ import com.example.mp3player.R
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
+import com.example.mp3player.viewmodels.MusicDetailFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MusicDetailFragment: Fragment(R.layout.fragment_music_detail) {
+class MusicDetailFragment : Fragment(R.layout.fragment_music_detail) {
 
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val musicDetailFragmentViewModel: MusicDetailFragmentViewModel by viewModels()
 
     private lateinit var audioModel: AudioModel
 
-    @Inject lateinit var musicPlayer: MusicPlayer
-
-    private lateinit var title: TextView
-    private lateinit var artist: TextView
-    private lateinit var seekBar: SeekBar
-    private lateinit var runTime: TextView
-    private lateinit var endTime: TextView
-    private lateinit var playPauseButton: ImageView
-    private lateinit var nextButton: ImageView
-    private lateinit var prevButton: ImageView
+    @Inject
+    lateinit var musicPlayer: MusicPlayer
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //INIT VIEWS
-        title = view.findViewById(R.id.musicTitle)
-        artist = view.findViewById(R.id.musicArtist)
-        seekBar = view.findViewById(R.id.seekBar)
-        runTime = view.findViewById(R.id.runTime)
-        endTime = view.findViewById(R.id.endTime)
-        playPauseButton = view.findViewById(R.id.playPause)
-        nextButton = view.findViewById(R.id.skipNext)
-        prevButton = view.findViewById(R.id.skipPrev)
-        //INIT AND SUBSCRIBE AUDIO_MODEL
+        val title = view.findViewById<TextView>(R.id.musicTitle)
+        val artist = view.findViewById<TextView>(R.id.musicArtist)
+        val seekBar = view.findViewById<SeekBar>(R.id.seekBar)
+        val runTime = view.findViewById<TextView>(R.id.runTime)
+        val endTime = view.findViewById<TextView>(R.id.endTime)
+        val playPauseButton = view.findViewById<ImageView>(R.id.playPause)
+        val nextButton = view.findViewById<ImageView>(R.id.skipNext)
+        val prevButton = view.findViewById<ImageView>(R.id.skipPrev)
+        //INIT AUDIO_MODEL AND SUBSCRIBE AUDIO_MODEL
         audioModel = mainViewModel.currentAudioModel.value
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED){
-                mainViewModel.currentAudioModel.collectLatest {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.currentAudioModel.collect {
                     audioModel = it
-                    setUI()
+                    //SET VIEWS
+                    (activity as AppCompatActivity).supportActionBar?.title = audioModel.title
+                    title.text = audioModel.title
+                    artist.text = audioModel.artist
+                    seekBar.max = audioModel.duration.toInt()
+                    endTime.text = convertTime(audioModel.duration.toInt())
+                    runTime.text = getString(R.string.start_time)
+                    playPauseButton.setImageResource(
+                        if (musicPlayer.isPlaying())
+                            R.drawable.ic_pause
+                        else
+                            R.drawable.ic_play
+                    )
+                    seekBar.max = audioModel.duration.toInt()
                 }
             }
         }
-        //SET VIEWS
-        setUI()
+        //SUBSCRIBE PLAYER PROGRESS
+        lifecycleScope.launch {
+            musicDetailFragmentViewModel.currentPositionFlow.collect {
+                seekBar.progress = it
+                runTime.text = convertTime(it)
+            }
+        }
+        //SET SEEK_BAR PROGRESS CHANGING
+        seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                musicDetailFragmentViewModel.seekTo(seekBar!!.progress)
+            }
+        })
         //SET BUTTONS
-        playPauseButton.setOnClickListener { musicPlayer.resumePausePlaying() }
-        nextButton.setOnClickListener { musicPlayer.setNext(mainViewModel) }
-        prevButton.setOnClickListener { musicPlayer.setPrev(mainViewModel) }
+        playPauseButton.setOnClickListener {
+            playPauseButton.setImageResource(
+                if (musicPlayer.isPlaying())
+                    R.drawable.ic_play
+                else
+                    R.drawable.ic_pause
+            )
+            musicPlayer.resumePausePlaying()
+        }
+        nextButton.setOnClickListener {
+            musicPlayer.setNext(mainViewModel)
+        }
+        prevButton.setOnClickListener {
+            musicPlayer.setPrev(mainViewModel)
+        }
         //SET MEDIA PLAYER
-
-
-
-        //musicPlayerImpl.startPlaying(audioModel.path)
+        if (arguments?.getBoolean(IS_CURRENT_KEY) != true) {
+            musicPlayer.stopPlaying()
+            musicPlayer.startPlaying(audioModel.path)
+        }
     }
 
-    private fun convertTime(string: String): String{
-        val timeLong = string.toLong().div(1000)
-        return String.format("%02d:%02d", timeLong / 60 ,timeLong % 60)
+    private fun convertTime(position: Int): String {
+        val time = position.div(1000)
+        return String.format("%02d:%02d", time / 60, time % 60)
     }
 
-    private fun setUI(){
-        (activity as AppCompatActivity).supportActionBar?.title = audioModel.title
-        title.text = audioModel.title
-        artist.text = audioModel.artist
-        seekBar.max = audioModel.duration.toInt()
-        endTime.text = convertTime(audioModel.duration)
-        runTime.text = getString(R.string.start_time)
+    companion object {
+        const val IS_CURRENT_KEY = "MUSIC_DETAIL_FRAGMENT_IS_CURRENT_KEY"
     }
 }

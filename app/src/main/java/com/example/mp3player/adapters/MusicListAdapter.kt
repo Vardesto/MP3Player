@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mp3player.R
+import com.example.mp3player.app.fragments.MusicDetailFragment
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +23,11 @@ class MusicListAdapter(
     private val navController: NavController,
     private val viewModel: MainViewModel
 ) : RecyclerView.Adapter<MusicListAdapter.MusicListViewHolder>() {
+
+    fun notifyCurrentItemChanged(audioModel: AudioModel){
+        notifyItemChanged(musicList.indexOf(audioModel))
+        notifyItemChanged(musicList.indexOf(viewModel.currentAudioModel.value))
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicListViewHolder {
         val view =
@@ -41,15 +48,22 @@ class MusicListAdapter(
             val artist = itemView.findViewById<TextView>(R.id.artist)
             title.text = audioModel.title
             artist.text = audioModel.artist
-            if (audioModel == viewModel.currentAudioModel.value){
+            if (audioModel == viewModel.currentAudioModel.value) {
                 title.setTextColor(Color.RED)
             } else {
                 title.setTextColor(Color.BLACK)
             }
 
             itemView.setOnClickListener {
-                viewModel.setCurrentAudioModel(audioModel)
-                navController.navigate(R.id.action_musicListFragment_to_musicDetailFragment)
+
+                navController.navigate(
+                    R.id.action_musicListFragment_to_musicDetailFragment,
+                    bundleOf(
+                        MusicDetailFragment.IS_CURRENT_KEY to
+                                viewModel.setCurrentAudioModel(audioModel)
+                    )
+                )
+
             }
 
         }

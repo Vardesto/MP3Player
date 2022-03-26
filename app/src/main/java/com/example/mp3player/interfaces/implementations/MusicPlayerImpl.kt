@@ -1,8 +1,11 @@
 package com.example.mp3player.interfaces.implementations
 
 import android.media.MediaPlayer
+import android.util.Log
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MusicPlayerImpl @Inject constructor(private val mediaPlayer: MediaPlayer): MusicPlayer {
@@ -27,16 +30,25 @@ class MusicPlayerImpl @Inject constructor(private val mediaPlayer: MediaPlayer):
     }
 
     override fun setNext(mainViewModel: MainViewModel) {
-        mainViewModel.setNext()
         stopPlaying()
-        startPlaying(mainViewModel.currentAudioModel.value.path)
+        startPlaying(mainViewModel.getNext().path)
+        mainViewModel.setNext()
+
     }
 
     override fun setPrev(mainViewModel: MainViewModel) {
-        mainViewModel.setPrev()
         stopPlaying()
-        startPlaying(mainViewModel.currentAudioModel.value.path)
+        startPlaying(mainViewModel.getPrev().path)
+        mainViewModel.setPrev()
+
     }
 
+    override fun isCurrent(): Boolean {
+        return mediaPlayer.isPlaying
+    }
+
+    override fun isPlaying(): Boolean {
+        return mediaPlayer.isPlaying
+    }
 
 }
