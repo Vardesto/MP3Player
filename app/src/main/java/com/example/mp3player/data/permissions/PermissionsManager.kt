@@ -12,7 +12,7 @@ class PermissionsManager {
 
         private const val PERMISSIONS_REQUEST_CODE = 820
 
-        fun hasReadExternalStoragePermission(context: Context) =
+        private fun hasReadExternalStoragePermission(context: Context) =
             ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_EXTERNAL_STORAGE

@@ -1,11 +1,9 @@
 package com.example.mp3player.notification
 
-import android.app.Service
 import android.content.ComponentName
-import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
-import com.example.mp3player.interfaces.MusicPlayer
+import android.util.Log
 import com.example.mp3player.viewmodels.MainViewModel
 
 class MusicBarServiceConnectionImpl(private val mainViewModel: MainViewModel): ServiceConnection {

@@ -4,66 +4,61 @@ import android.app.NotificationManager
 import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
+import com.example.mp3player.R
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.notification.MusicBarNotification
 import com.example.mp3player.viewmodels.MainViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MusicPlayerImpl @Inject constructor(
     private val mediaPlayer: MediaPlayer,
-    @ApplicationContext private val context: Context): MusicPlayer {
+    @ApplicationContext private val context: Context
+) : MusicPlayer {
 
-    override fun startPlaying(path: String) {
-        mediaPlayer.setDataSource(path)
+    override fun startPlaying(mainViewModel: MainViewModel) {
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(mainViewModel.currentAudioModel.value.path)
         mediaPlayer.prepare()
         mediaPlayer.start()
+        mainViewModel.changeIsPlaying(true)
+        setNotification(mainViewModel.currentAudioModel.value)
     }
 
-    override fun resumePausePlaying() {
-        if (mediaPlayer.isPlaying){
+    override fun resumePausePlaying(mainViewModel: MainViewModel) {
+        if (mediaPlayer.isPlaying) {
             mediaPlayer.pause()
         } else {
             mediaPlayer.start()
         }
+        mainViewModel.changeIsPlaying()
+        setNotification(mainViewModel.currentAudioModel.value)
     }
 
     override fun stopPlaying() {
         mediaPlayer.stop()
-        mediaPlayer.reset()
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager.cancel(0)
     }
 
     override fun setNext(mainViewModel: MainViewModel) {
-        stopPlaying()
-        startPlaying(mainViewModel.getNext().path)
         mainViewModel.setNext()
-        setNotification(mainViewModel.currentAudioModel.value)
+        startPlaying(mainViewModel)
     }
-
 
 
     override fun setPrev(mainViewModel: MainViewModel) {
-        stopPlaying()
-        startPlaying(mainViewModel.getPrev().path)
         mainViewModel.setPrev()
-        setNotification(mainViewModel.currentAudioModel.value)
-
-    }
-
-    override fun isCurrent(): Boolean {
-        return mediaPlayer.isPlaying
-    }
-
-    override fun isPlaying(): Boolean {
-        return mediaPlayer.isPlaying
+        startPlaying(mainViewModel)
     }
 
     override fun setNotification(audioModel: AudioModel) {
         val notificationManager = context.getSystemService(NotificationManager::class.java)
-        val notification = MusicBarNotification.createNotification(context, audioModel)
+        val iconId = if (mediaPlayer.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        val notification = MusicBarNotification.createNotification(context, audioModel, iconId)
         notificationManager.notify(0, notification)
     }
 

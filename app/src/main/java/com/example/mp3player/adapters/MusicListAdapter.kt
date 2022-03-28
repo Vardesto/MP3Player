@@ -1,13 +1,10 @@
 package com.example.mp3player.adapters
 
-import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
@@ -18,9 +15,6 @@ import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 class MusicListAdapter @AssistedInject constructor(
     @Assisted private var musicList: List<AudioModel>,

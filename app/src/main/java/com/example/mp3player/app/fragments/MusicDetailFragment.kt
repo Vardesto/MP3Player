@@ -30,6 +30,8 @@ class MusicDetailFragment : Fragment(R.layout.fragment_music_detail) {
 
     private lateinit var audioModel: AudioModel
 
+    private var isTracking = false
+
     @Inject
     lateinit var musicPlayer: MusicPlayer
 
@@ -57,12 +59,6 @@ class MusicDetailFragment : Fragment(R.layout.fragment_music_detail) {
                     seekBar.max = audioModel.duration.toInt()
                     endTime.text = convertTime(audioModel.duration.toInt())
                     runTime.text = getString(R.string.start_time)
-                    playPauseButton.setImageResource(
-                        if (musicPlayer.isPlaying())
-                            R.drawable.ic_pause
-                        else
-                            R.drawable.ic_play
-                    )
                     seekBar.max = audioModel.duration.toInt()
                 }
             }
@@ -70,33 +66,36 @@ class MusicDetailFragment : Fragment(R.layout.fragment_music_detail) {
         //SUBSCRIBE PLAYER PROGRESS
         lifecycleScope.launch {
             musicDetailFragmentViewModel.currentPositionFlow.collect {
-                seekBar.progress = it
-                runTime.text = convertTime(it)
+                if (!isTracking) {
+                    seekBar.progress = it
+                    runTime.text = convertTime(it)
+                }
             }
         }
         //SET SEEK_BAR PROGRESS CHANGING
-        seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+                isTracking = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 musicDetailFragmentViewModel.seekTo(seekBar!!.progress)
+                isTracking = false
             }
         })
+        //SUBSCRIBE IS_PLAYING
+        lifecycleScope.launch {
+            mainViewModel.isPlaying.collect {
+                playPauseButton.setImageResource(if (it) R.drawable.ic_pause else R.drawable.ic_play)
+            }
+        }
         //SET BUTTONS
         playPauseButton.setOnClickListener {
-            playPauseButton.setImageResource(
-                if (musicPlayer.isPlaying())
-                    R.drawable.ic_play
-                else
-                    R.drawable.ic_pause
-            )
-            musicPlayer.resumePausePlaying()
+            musicPlayer.resumePausePlaying(mainViewModel)
         }
         nextButton.setOnClickListener {
             musicPlayer.setNext(mainViewModel)
@@ -106,8 +105,7 @@ class MusicDetailFragment : Fragment(R.layout.fragment_music_detail) {
         }
         //SET MEDIA PLAYER
         if (arguments?.getBoolean(IS_CURRENT_KEY) != true) {
-            musicPlayer.stopPlaying()
-            musicPlayer.startPlaying(audioModel.path)
+            musicPlayer.startPlaying(mainViewModel)
         }
     }
 

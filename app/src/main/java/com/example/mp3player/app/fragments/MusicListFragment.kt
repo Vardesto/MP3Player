@@ -14,13 +14,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mp3player.R
-import com.example.mp3player.adapters.MusicListAdapter
-import com.example.mp3player.adapters.MusicListAdapter_Factory
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.data.di.factories.MusicListAdapterFactory
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,11 +27,15 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MusicListFragment : Fragment(R.layout.fragment_music_list) {
 
-    @Inject lateinit var audioModelList: List<AudioModel>
+    @Inject
+    lateinit var audioModelList: List<AudioModel>
 
-    @Inject lateinit var musicPlayer: MusicPlayer
 
-    @Inject lateinit var musicListAdapterFactory: MusicListAdapterFactory
+    @Inject
+    lateinit var musicPlayer: MusicPlayer
+
+    @Inject
+    lateinit var musicListAdapterFactory: MusicListAdapterFactory
 
     private val mainViewModel: MainViewModel by activityViewModels()
 
@@ -47,7 +50,8 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
         val navController = findNavController()
         //SET RECYCLER VIEW AND ADAPTER
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapterInstance = musicListAdapterFactory.create(audioModelList, navController, mainViewModel)
+        val adapterInstance =
+            musicListAdapterFactory.create(audioModelList, navController, mainViewModel)
         recyclerView.adapter = adapterInstance
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         //INIT BOTTOM PLAYER
@@ -67,6 +71,12 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
                 }
             }
         }
+        //SUBSCRIBE IS_PLAYING
+        lifecycleScope.launch {
+            mainViewModel.isPlaying.collect {
+                playPauseButton.setImageResource(if (it) R.drawable.ic_pause else R.drawable.ic_play)
+            }
+        }
         //SET BOTTOM_PLAYER
         setBottomPlayerUI()
         //SET LISTENERS FOR BOTTOM_PLAYER
@@ -77,15 +87,9 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
             musicPlayer.setPrev(mainViewModel)
         }
         playPauseButton.setOnClickListener {
-            playPauseButton.setImageResource(
-                if (musicPlayer.isPlaying())
-                    R.drawable.ic_play
-                else
-                    R.drawable.ic_pause
-            )
-            musicPlayer.resumePausePlaying()
+            musicPlayer.resumePausePlaying(mainViewModel)
         }
-        musicTitle.setOnClickListener{
+        musicTitle.setOnClickListener {
             navController.navigate(
                 R.id.action_musicListFragment_to_musicDetailFragment,
                 bundleOf(
@@ -95,14 +99,8 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
         }
     }
 
-    private fun setBottomPlayerUI(){
+    private fun setBottomPlayerUI() {
         musicTitle.text = audioModel.title
-        playPauseButton.setImageResource(
-            if (musicPlayer.isPlaying())
-                R.drawable.ic_pause
-            else
-                R.drawable.ic_play
-        )
     }
 
 }

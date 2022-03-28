@@ -23,8 +23,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(){
 
     @Inject lateinit var mediaPlayer: MediaPlayer
-    @Inject lateinit var musicPlayer: MusicPlayer
     private val mainViewModel: MainViewModel by viewModels()
+    @Inject lateinit var musicPlayer: MusicPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +43,8 @@ class MainActivity : AppCompatActivity(){
             musicPlayer.setNext(mainViewModel)
         }
         //INIT MEDIA PLAYER
-        musicPlayer.startPlaying(mainViewModel.currentAudioModel.value.path)
-        musicPlayer.resumePausePlaying()
-        musicPlayer.setNotification(mainViewModel.currentAudioModel.value)
+        musicPlayer.startPlaying(mainViewModel)
+        musicPlayer.resumePausePlaying(mainViewModel)
         //BIND MUSIC_BAR_SERVICE
         bindService(Intent(this, MusicBarService::class.java), MusicBarServiceConnectionImpl(mainViewModel), BIND_AUTO_CREATE)
     }

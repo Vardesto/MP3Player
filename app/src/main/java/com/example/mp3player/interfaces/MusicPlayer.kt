@@ -1,26 +1,19 @@
 package com.example.mp3player.interfaces
 
-import android.content.Context
-import android.media.MediaPlayer
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.viewmodels.MainViewModel
-import kotlinx.coroutines.flow.Flow
 
 interface MusicPlayer {
 
-    fun startPlaying(path: String)
+    fun startPlaying(mainViewModel: MainViewModel)
 
-    fun resumePausePlaying()
+    fun resumePausePlaying(mainViewModel: MainViewModel)
 
     fun stopPlaying ()
 
     fun setNext(mainViewModel: MainViewModel)
 
     fun setPrev(mainViewModel: MainViewModel)
-
-    fun isCurrent(): Boolean
-
-    fun isPlaying(): Boolean
 
     fun setNotification(audioModel: AudioModel)
 

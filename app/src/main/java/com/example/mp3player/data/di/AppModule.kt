@@ -1,19 +1,9 @@
 package com.example.mp3player.data.di
 
-import android.app.Activity
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.provider.MediaStore
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import com.example.mp3player.R
-import com.example.mp3player.adapters.MusicListAdapter
-import com.example.mp3player.app.MainActivity
-import com.example.mp3player.app.fragments.MusicListFragment
 import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.interfaces.implementations.MusicPlayerImpl
@@ -21,10 +11,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
