@@ -1,5 +1,6 @@
 package com.example.mp3player.adapters
 
+import android.content.Context
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,15 +14,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mp3player.R
 import com.example.mp3player.app.fragments.MusicDetailFragment
 import com.example.mp3player.data.audio.AudioModel
+import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class MusicListAdapter(
-    private var musicList: List<AudioModel>,
-    private val navController: NavController,
-    private val viewModel: MainViewModel
+class MusicListAdapter @AssistedInject constructor(
+    @Assisted private var musicList: List<AudioModel>,
+    @Assisted private val navController: NavController,
+    @Assisted private val viewModel: MainViewModel,
+    private val musicPlayer: MusicPlayer
 ) : RecyclerView.Adapter<MusicListAdapter.MusicListViewHolder>() {
 
     fun notifyCurrentItemChanged(audioModel: AudioModel){
@@ -63,6 +68,7 @@ class MusicListAdapter(
                                 viewModel.setCurrentAudioModel(audioModel)
                     )
                 )
+                musicPlayer.setNotification(audioModel)
 
             }
 

@@ -1,6 +1,8 @@
 package com.example.mp3player.interfaces
 
+import android.content.Context
 import android.media.MediaPlayer
+import com.example.mp3player.data.audio.AudioModel
 import com.example.mp3player.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.Flow
 
@@ -19,5 +21,7 @@ interface MusicPlayer {
     fun isCurrent(): Boolean
 
     fun isPlaying(): Boolean
+
+    fun setNotification(audioModel: AudioModel)
 
 }

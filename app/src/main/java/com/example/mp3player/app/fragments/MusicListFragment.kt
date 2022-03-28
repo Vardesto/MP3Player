@@ -15,7 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mp3player.R
 import com.example.mp3player.adapters.MusicListAdapter
+import com.example.mp3player.adapters.MusicListAdapter_Factory
 import com.example.mp3player.data.audio.AudioModel
+import com.example.mp3player.data.di.factories.MusicListAdapterFactory
 import com.example.mp3player.interfaces.MusicPlayer
 import com.example.mp3player.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,6 +32,8 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
 
     @Inject lateinit var musicPlayer: MusicPlayer
 
+    @Inject lateinit var musicListAdapterFactory: MusicListAdapterFactory
+
     private val mainViewModel: MainViewModel by activityViewModels()
 
     private lateinit var audioModel: AudioModel
@@ -43,7 +47,7 @@ class MusicListFragment : Fragment(R.layout.fragment_music_list) {
         val navController = findNavController()
         //SET RECYCLER VIEW AND ADAPTER
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapterInstance = MusicListAdapter(audioModelList, navController, mainViewModel)
+        val adapterInstance = musicListAdapterFactory.create(audioModelList, navController, mainViewModel)
         recyclerView.adapter = adapterInstance
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         //INIT BOTTOM PLAYER
